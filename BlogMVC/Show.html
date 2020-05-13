@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="Scripts/jquery-3.3.1.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+    <script src="Scripts/jquery.unobtrusive-ajax.js"></script>
+    <link href="Content/bootstrap.min.css" rel="stylesheet" />
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    留言:<input id="txtCon" placeholder="请输入留言信息" type="text" />
+    时间:<input id="txtTime" type="text" />
+    <input id="Button1" type="button" value="查询" onclick="Sel()" />
+    <br />
+    <input id="YesLook" type="button" value="已浏览" onclick="YesLook()" />
+    <input id="NoLook" type="button" value="未浏览" onclick="NoLook()" />
+    <span style="padding-left:500px">当前留言总数：</span><span id="num"></span>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>用户</th>
+                <th>留言内容</th>
+                <th>时间</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="tb"></tbody>
+    </table>
+</body>
+</html>
+<script>
+    
+    Show();
+    //显示所有留言
+    function Show() {
+        $.ajax({
+            url: "http://localhost:58134/api/Mess/GetMesses",
+            type: "get",
+            success: function (d) {
+                $("#tb").empty();
+                $(d).each(function () {
+                    var line = '<tr>'
+                        + '<td>' + this.Id + '</td>'
+                        + '<td>' + this.UserName + '</td>'
+                        + '<td><a href = "Xiang.html?Id='+this.Id+'">' + this.Content + '</a></td>'
+                        + '<td>' + this.SendTime + '</td>'
+                        + '<td>' + (this.MessState == 0 ? "未浏览" : "已浏览") + '</td>'
+                        + '<td></td>'
+                        + '</tr>';
+                    $("#tb").append(line);
+                    $("#num").val(d.count);
+                })
+            }
+        })
+    }
+    //根据留言内容和时间进行模糊查询
+    function Sel() {
+        var content = $("#txtCon").val();
+        var time = $("#txtTime").val();
+        var where = "?";//默认传值
+        if (content != "") {
+            where += "con=" + content;
+        }
+        if (time != "") {
+            where += "&date=" + time;
+        }
+        $.ajax({
+            url: "http://localhost:58134/api/Mess/GetMesses" + where,
+            type: "get",
+            success: function (d) {
+                $("#tb").empty();
+                $(d).each(function () {
+                    var line = '<tr>'
+                        + '<td>' + this.Id + '</td>'
+                        + '<td>' + this.UserName + '</td>'
+                        + '<td>' + this.Content + '</td>'
+                        + '<td>' + this.SendTime + '</td>'
+                        + '<td>' + (this.MessState == 0 ? "未浏览" : "已浏览") + '</td>'
+                        + '</tr>';
+                    $("#tb").append(line);
+                })
+            }
+        })
+    }
+    //已浏览
+    function YesLook() {
+        $.ajax({
+            url: "http://localhost:58134/api/Mess/GetMessesSta?sta=" + 1,
+            type: "get",
+            success: function (d) {
+                $("#tb").empty();
+                $(d).each(function () {
+                    var line = '<tr>'
+                        + '<td>' + this.Id + '</td>'
+                        + '<td>' + this.UserName + '</td>'
+                        + '<td>' + this.Content + '</td>'
+                        + '<td>' + this.SendTime + '</td>'
+                        + '<td>' + (this.MessState == 0 ? "未浏览" : "已浏览") + '</td>'
+                        + '</tr>';
+                    $("#tb").append(line);
+                })
+            }
+        })
+    }
+    //未浏览
+    function NoLook() {
+        $.ajax({
+            url: "http://localhost:58134/api/Mess/GetMessesSta?sta=" + 0,
+            type: "get",
+            success: function (d) {
+                $("#tb").empty();
+                $(d).each(function () {
+                    var line = '<tr>'
+                        + '<td>' + this.Id + '</td>'
+                        + '<td>' + this.UserName + '</td>'
+                        + '<td>' + this.Content + '</td>'
+                        + '<td>' + this.SendTime + '</td>'
+                        + '<td>' + (this.MessState == 0 ? "未浏览" : "已浏览") + '</td>'
+                        + '</tr>';
+                    $("#tb").append(line);
+                })
+            }
+        })
+    }
+</script>

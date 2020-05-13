@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="Scripts/jquery-3.3.1.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+    <script src="Scripts/jquery.unobtrusive-ajax.js"></script>
+    <meta charset="utf-8" />
+    <title>留言详情</title>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>留言用户</td>
+            <td><input id="txtUser" type="text" readonly="readonly" /></td>
+        </tr>
+        <tr>
+            <td>留言内容</td>
+            <td><input id="txtCon" type="text" readonly="readonly" /></td>
+        </tr>
+        <tr>
+            <td>是否回复</td>
+            <td><input id="Checkbox1" type="checkbox" onclick="ShowText()"/></td>
+        </tr>
+        <tr>
+            <td><textarea id="TextArea1" rows="2" cols="20"></textarea></td>
+        </tr>
+        <tr>
+            <td>剩余字数:<span id="num">200</span>字</td>
+        </tr>
+        <tr>
+            <td><input id="Button1" type="button" value="确定" onclick="Save()" /></td>
+            <td><input id="Button1" type="button" value="取消" onclick="NoSave()" /> </td>
+        </tr>
+    </table>
+</body>
+</html>
+<script>
+    Show();
+    function Show() {
+        //获取路径
+        var path = location.href;
+        //找最后一个'/'所在的位置
+        var index = path.lastIndexOf('=');
+        //截取id
+        var id = path.substr(index + 1);
+        //获取数据进行反填
+        $.ajax({
+            url: "http://localhost:58134/api/Mess/GetMessesById?id=" + id,
+            type: "get",
+            dataType:'json',
+            success: function (d) {
+                $("#txtUser").val(d[0].UserName);
+                $("#txtCon").val(d[0].Content);
+            }
+        })
+        $("#TextArea1").hide();
+    }
+    //显示文本框
+    function ShowText() {
+        $("#TextArea1").show();
+    }
+    //确定按钮的点击事件
+    function Save() {
+        //获取路径
+        var path = location.href;
+        //找最后一个'/'所在的位置
+        var index = path.lastIndexOf('=');
+        //截取id
+        var id = path.substr(index + 1);
+        var o = {};
+        //获取回复内容
+        o.reply = $("#TextArea1").val();
+        $.ajax({
+            url: "http://localhost:58134/api/Mess/AddReply?id="+id,
+            type: "post",
+            data: o,
+            success: function (d) {
+                if (d > 0) {
+                    alert('回复成功'); location.href = 'Show.html';
+                }
+            }
+        })
+    }
+    //取消按钮的点击事件
+    function NoSave() {
+        location.href = 'Xiang.html';
+    }
+</script>
